@@ -4,7 +4,6 @@ from Convolution3D import cv3d
 import torch.nn as nn
 
 class TestConvolution3D(unittest.TestCase):
-
     def test_cv3d_1(self):
         tensor = torch.rand(8, 5, 6, 6)
 
