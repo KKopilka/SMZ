@@ -42,9 +42,25 @@ def cv2d_dop(in_channels, out_channels, kernel_size, transp_stride=1, padding=0,
             result_matrix.append(pad_matr)
         input_m = torch.tensor(result_matrix, dtype=torch.float)
         
-        filter_np = np.array(torch.rand(out_channels, in_channels, kernel_size, kernel_size))
-        filter_tensor = torch.tensor(filter_np)
-        filter_for_transpose = torch.flip(filter_tensor, dims=[2, 3]).permute(1, 0, 2, 3)
+        # filter = np.array(torch.rand(out_channels, in_channels, kernel_size, kernel_size))
+        
+        # # filter_for_transpose = torch.flip(filter_tensor, dims=[2, 3]).permute(1, 0, 2, 3)
+        # # Инвертирование пространственных размеров ядра для ConvTranspose2d
+        # filter_for_transpose = torch.flip(filter, [2, 3])
+        # filter_for_transpose = torch.tensor(filter_for_transpose)
+        # filter_for_transpose = filter_for_transpose.reshape(in_channels, out_channels, kernel_size, kernel_size)
+        # # Если нужно преобразовать в numpy array
+        # # filter_for_transpose_np = filter_for_transpose.numpy()
+
+        # Создание случайного фильтра
+        filter = torch.rand(out_channels, in_channels, kernel_size, kernel_size)
+
+        # Инвертирование пространственных размеров ядра для ConvTranspose2d
+        filter_for_transpose = torch.flip(filter, [2, 3])
+
+        # Если нужно, преобразовать в numpy array
+        filter_for_transpose = filter_for_transpose.numpy()
+        filter_for_transpose = filter_for_transpose.reshape(in_channels, out_channels, kernel_size, kernel_size)
 
         out_tensor = []
         for l in range(out_channels):
