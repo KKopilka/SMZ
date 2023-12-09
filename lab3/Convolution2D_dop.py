@@ -32,17 +32,15 @@ def cv2d_dop(in_channels, out_channels, kernel_size, transp_stride=1, padding=0,
             raise ValueError("Unsupported kernel_size type")
         
         stride = 1
-        pad = kernel_size - 1
         result_matrix = []
         for matr in input_m:
-            zero_tensor = np.zeros((((matr.shape[0]-1)*(transp_stride)+1), ((matr.shape[1]-1)*(transp_stride)+1)))
-            for a in range (0, zero_tensor.shape[0], transp_stride):
-                for b in range (0, zero_tensor.shape[1], transp_stride):
-                    zero_tensor[a][b] = matr[a//(transp_stride)][b//(transp_stride)]
-
-            pad_matr = np.pad(zero_tensor, pad_width=pad, mode='constant')
+            # Увеличиваем выборку входной матрицы с помощью transp_stride
+            upsampled_matr = np.kron(matr, np.ones((transp_stride, transp_stride)))
+            # Дополняем матрицу с увеличенной дискретизацией
+            pad = kernel_size - 1
+            pad_matr = np.pad(upsampled_matr, pad_width=pad, mode='constant')
             result_matrix.append(pad_matr)
-        input_m = torch.tensor(result_matrix)
+        input_m = torch.tensor(result_matrix, dtype=torch.float)
         
         filter_np = np.array(torch.rand(out_channels, in_channels, kernel_size, kernel_size))
         filter_tensor = torch.tensor(filter_np)
@@ -64,7 +62,6 @@ def cv2d_dop(in_channels, out_channels, kernel_size, transp_stride=1, padding=0,
                     f = np.append(f, float(s + value_b[l]))
             out_tensor.append(torch.tensor(f, dtype=torch.float).view(1, 1, -1))
 
-        # Convert the list of tensors to a NumPy array
         out_tensor_np = np.array([tensor.numpy() for tensor in out_tensor])
         return out_tensor_np, filter_for_transpose, torch.tensor(np.array(value_b))
 
